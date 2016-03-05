@@ -1,0 +1,8 @@
+{
+  "name": "KineticTy",
+  "description": "Automatic Kinetic Typography Generator",
+  "version": "0.01",
+  "dependencies": {
+    "pixi": "^0.3.1"
+  }
+}
