@@ -7,26 +7,17 @@ var logoTexture = null;
 var logoSprite  = null;
 
 var color = '#e8a20d';
-var scrollingText =   "你\n\n"
-					+ "是\n\n"
-					+ "一\n\n"
-					+ "个\n\n"
-					+ "大\n\n"
-					+ "笨\n\n"
-					+ "蛋\n";
+// var scrollingText =   "Happy";
 
-
-var textSprite  = null;
+// var textSprite  = null;
 
 var logoBaseWidth   = 1000;
 var logoBaseHeight  = 428;
 var pixelRatio  = 1;
 var screenRatio = 1;
 
-var capturer = new CCapture( { format: 'webm' } );
-
 function init() {
-	renderer = PIXI.autoDetectRenderer(800, 600, {
+	renderer = PIXI.autoDetectRenderer(600, 600, {
 		backgroundColor : 0x4080a0,
         transparent : true
 	});
@@ -47,9 +38,11 @@ function resizeStage() {
 		screenRatio = height / width;
 	}
 
+	width = height = 480
+
 	renderer.resize(width, height);
-	renderer.view.style.width  = width  / pixelRatio + 'px';
-	renderer.view.style.height = height / pixelRatio + 'px';
+	renderer.view.style.width  = width + 'px';//width  / pixelRatio + 'px';
+	renderer.view.style.height = height + 'px';//height / pixelRatio + 'px';
 };
 
 function animate(time) {
@@ -58,98 +51,39 @@ function animate(time) {
     renderer.render(stage);
 };
 
-function createStarWarsLogo() {
-	var scale = width / logoBaseWidth;
-	var logo = new Logo(scale);
-	logo.draw();
-	logoTexture = PIXI.Texture.fromCanvas(logo.canvas);
-	logo.destroy();
 
-	logoSprite = new PIXI.Sprite(logoTexture);
-	logoSprite.anchor.x = 0.5;
-	logoSprite.anchor.y = 0.5;
-	logoSprite.position.x = width  / 2;
-	logoSprite.position.y = height / 2;
-	logoSprite.scale.x = logoSprite.scale.y = 1.33;
 
-	stage.addChild(logoSprite);
-};
-
-function createScrollingText() {
+function createScrollingText(text) {
 	var style = {
-		font : Math.floor(width / 5) + 'px myFont',
+		font : Math.floor(width / 3) + 'px myFont',
 		fill : color,
 		align : 'center'
 	};
 
-	textSprite = new PIXI.Text(scrollingText, style);
+	textSprite = new PIXI.Text(text, style);
 	textSprite.anchor.x = 0.5;
 	textSprite.anchor.y = 0;
 	textSprite.position.x = width / 2;
 	textSprite.position.y = height;
 
 	stage.addChild(textSprite);
+	return textSprite;
 };
 
-function animateStarWarsLogo(callback) {
-	var scale1 = 0.05;
-	var scale2 = 0.04;
 
-	var f = {
-		scale : logoSprite.scale.x
-	}
-	var t = {
-		scale : scale1
-	}
-
-	var tween = new TWEEN.Tween(f)
-		.to(t, 5000)
-		.easing(TWEEN.Easing.Quadratic.Out)
-		.onUpdate(function() {
-			logoSprite.scale.x = f.scale;
-			logoSprite.scale.y = f.scale;
-		})
-		.start();
-
-	var f2 = {
-		scale : scale1,
-		alpha : 1
-	}
-	var t2 = {
-		scale : scale2,
-		alpha : 0
-	}
-
-	var tween2 = new TWEEN.Tween(f2)
-		.to(t2, 500)
-		.easing(TWEEN.Easing.Linear.None)
-		.onUpdate(function() {
-			logoSprite.scale.x = f2.scale;
-			logoSprite.scale.y = f2.scale;
-			logoSprite.alpha   = f2.alpha;
-		})
-		.onComplete(function() {
-			if (callback) {
-				callback.call();
-			}
-		})
-
-		tween.chain(tween2);
-		tween.start();
-};
-
-function animateScrollingText() {
+function animateScrollingText(textSprite, delayTime) {
 	var f = {
 		posY : height
 	}
 	var t = {
-		posY : 0 - textSprite.height * 4
+		posY : 0 - textSprite.height
 	}
 
 	var tween = new TWEEN.Tween(f)
-		.to(t, 50000)
+		.to(t, 3000)
+		.delay(delayTime)
 		.easing(TWEEN.Easing.Linear.None)
-		.repeat( Infinity )
+		.repeat( 1 )
 		.onUpdate(function() {
 			textSprite.position.y = f.posY;
 		})
@@ -183,15 +117,26 @@ function loadFont(fntUrl, fntName) {
 };
 
 function onAssetsLoaded() {
-	createStarWarsLogo();
-	createScrollingText();
+	// createStarWarsLogo();
+	var data = "Happy Birthday to you".split(" ")
+	var wordTime = [2320, 3558, 4663, 5252];
 
+	var textSprites = [];
+
+	setCanvasPerspective(screenRatio, screenRatio / ( (width > height) ? (height / width)  : (width / height ) ) / 8 * screenRatio );
+
+	data.forEach(function(text) {
+		textSprites.push(createScrollingText(text));
+	});
+
+
+	// animateStarWarsLogo(function() {
+	textSprites.forEach(function(textSprite, i) {
+		animateScrollingText(textSprite, wordTime[i]);
+	});
+	// });
 	animate();
 
-	animateStarWarsLogo(function() {
-		setCanvasPerspective(screenRatio, screenRatio / ( (width > height) ? (height / width)  : (width / height ) ) / 50 * screenRatio );
-		animateScrollingText();
-	});
 };
 
 window.onload = function() {
